@@ -95,7 +95,7 @@ class MongoDBService:
             cursor = collection.find(
                 {},
                 {"id": 1, "title": 1, "date": 1, "summary": 1}
-            ).limit(limit)
+            ).sort({"date": -1}).limit(limit)
             
             options = []
             for doc in cursor:

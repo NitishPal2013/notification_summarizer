@@ -11,7 +11,7 @@ from services.gemini_service import GeminiService
 
 # Page configuration
 st.set_page_config(
-    page_title="Notification Summarizer (MongoDB)",
+    page_title="Notification Summarizer",
     page_icon="📋",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -27,7 +27,7 @@ def get_gemini_service():
     return GeminiService()
 
 def main():
-    st.title("📋 Notification Summarizer (MongoDB)")
+    st.title("📋 Notification Summarizer")
     st.markdown("**Step 1:** Select a country → **Step 2:** Choose a notification → **Step 3:** View/Generate summary")
     
     # Initialize services
@@ -36,8 +36,8 @@ def main():
     
     # Check MongoDB connection
     if not mongodb_service.is_connected():
-        st.error("❌ MongoDB connection failed. Please check your MongoDB setup.")
-        st.info("Make sure MongoDB is running and accessible.")
+        st.error("❌ Datbase connection failed. Please check your Database setup.")
+        st.info("Make sure Database is running and accessible.")
         return
     
     # Sidebar for country selection
@@ -57,7 +57,7 @@ def main():
     
     # Check if Gemini is available
     if not gemini_service.is_available():
-        st.sidebar.warning("⚠️ Gemini AI not available. Summaries cannot be generated.")
+        st.sidebar.warning("⚠️ AI service not available. Summaries cannot be generated.")
     
     # Load dropdown options
     try:
@@ -68,7 +68,7 @@ def main():
             # Debug information
             with st.expander("🔍 Debug Information"):
                 st.write(f"Country: {country}")
-                st.write(f"MongoDB connected: {mongodb_service.is_connected()}")
+                st.write(f"DB connected: {mongodb_service.is_connected()}")
                 stats = mongodb_service.get_collection_stats(country)
                 st.write(f"Collection stats: {stats}")
             return
@@ -78,7 +78,7 @@ def main():
         option_values = [None]
         
         for option in options:
-            title_preview = option['title'][:60] + "..." if len(option['title']) > 60 else option['title']
+            title_preview = option['title']
             label = f"{title_preview} | {option['date']}"
             if option['has_summary']:
                 label += " ✅"
@@ -113,7 +113,7 @@ def main():
                     
                     # Show text preview
                     with st.expander("📖 View Full Text"):
-                        st.text(notification.text[:1500] + "..." if len(notification.text) > 1500 else notification.text)
+                        st.text(notification.text)
             else:
                 st.info("👆 Please select a notification from the dropdown above to view details.")
         
@@ -131,7 +131,7 @@ def main():
                     # Generate summary button
                     if gemini_service.is_available():
                         if st.button("🤖 Generate Summary", type="primary", use_container_width=True):
-                            with st.spinner("🔄 Generating summary using Gemini AI..."):
+                            with st.spinner("🔄 Generating summary... "):
                                 summary = gemini_service.generate_summary(
                                     notification.text, 
                                     notification.title
@@ -145,23 +145,23 @@ def main():
                                         # Update notification object
                                         notification.summary = summary
                                         
-                                        st.success("✅ Summary generated and saved successfully!")
+                                        st.success("✅ Summary generated and saved successfully! (kindly reload the page to get the updated rendered!)")
                                         st.write(summary)
                                         
                                         # Refresh the page to show updated data
-                                        st.rerun()
+                                        # st.rerun()
                                     else:
-                                        st.error("Failed to save summary to database.")
+                                        st.error("Failed to save summary")
                                 else:
                                     st.error("❌ Failed to generate summary. Please try again.")
                     else:
-                        st.warning("⚠️ Gemini AI service is not available. Cannot generate summary.")
+                        st.warning("⚠️AI service is not available. Cannot generate summary.")
             else:
                 st.info("👆 Please select a notification from the dropdown to view its summary.")
         
     except Exception as e:
         st.error(f"❌ Error loading data: {str(e)}")
-        st.write("Please check if MongoDB is running and accessible.")
+        st.write("Please check if Database is running and accessible.")
 
 if __name__ == "__main__":
     main()
