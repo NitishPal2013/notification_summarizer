@@ -38,17 +38,18 @@ class GeminiService:
         try:
             # Create a focused prompt for summarization
             prompt = f"""
-            Please provide a concise summary of the following regulatory notification:
-            
-            Title: {title}
-            
-            Content: {text[:4000]}  # Limit text length for API
-            
-            Requirements:
-            - Summarize in 2-3 sentences
-            - Focus on key regulatory changes or requirements
-            - Use clear, professional language
-            - Highlight important dates or deadlines if mentioned
+            You are an expert in financial notifications and regulatory circulars. Read the following text carefully and do the following:
+1. Summarize the content in a detailed and clear manner, capturing all important points.
+2. Identify and list any other circulars, notifications, or references mentioned within the text.
+3. If dates, numbers, or entities are mentioned, include them in the summary.
+4. Present the summary in structured bullet points for easy readability.
+5. Keep the language precise and professional, suitable for regulatory or financial reporting.
+
+Title: {title}
+
+Text to summarize:
+
+{text}
             """
             
             response = self.model.generate_content(prompt)
